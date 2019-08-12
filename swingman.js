@@ -8,17 +8,17 @@ let healthSize = 10;
 var gameOver = false;
 
 //set man constants
-const manSize = 20;
+const manSize = 7;
 const startHealth = 100;
-const jumpVel = 15;
-const x_vel = 10;
-const damage = 10;
+const jumpVel = 12;
+const x_vel = 7;
+const damage = 5;
 //sets gravity
 let gravity = 0.8;
 
 //man object
 let man = {
-  name: 'red-dude',
+  name: 'bloodson',
   size: manSize,
   x: 0,
   y: screenHeight/2,
@@ -31,7 +31,7 @@ let man = {
 };
 
 let man2 = {
-  name: 'bluemen',
+  name: 'cripman',
   size: manSize,
   x: screenWidth,
   y: screenHeight/2,
@@ -45,15 +45,10 @@ let man2 = {
 
 let pipe = {
   x: screenWidth/2,
-  width: 20,
+  width: 30,
   holeY: 0,
-  holeSize: 100
+  holeSize: 70
 }
-
-
-
-
-
 
 function draw(){
   createCanvas(screenWidth, screenHeight);
@@ -63,7 +58,6 @@ function draw(){
 
   setVelocity_y(man);
   drawMan(man);
-
   setVelocity_y(man2);
   drawMan(man2);
 
@@ -97,7 +91,7 @@ function deadCheck(m1, m2){
     fill(m1.color[0], m1.color[1], m1.color[2]);
     textSize(150);
     text(m1.name + ' WINS!', 10, screenWidth/2);
-    setTimeout(function(){location.reload();}, 3000);
+    setTimeout(function(){location.reload();}, 3000);;
   }
 }
 
@@ -110,7 +104,7 @@ function drawPipe(){
 
 function drawMan(man){
   fill(man.color[0], man.color[1], man.color[2]);
-  rect(man.x, man.y, man.size, man.size);
+  circle(man.x, man.y, man.size, man.size);
 }
 
 function hitCheck(man, pipe){
@@ -134,7 +128,7 @@ function hitCheck(man, pipe){
 }
 
 function setVelocity_y(man){
-  if(man.y < screenHeight-man.size/1.75){
+  if(man.y < screenHeight-man.size){
     man.y_vel = man.y_vel + gravity;
   }
   man.y = man.y + man.y_vel;
