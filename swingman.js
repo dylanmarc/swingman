@@ -1,94 +1,54 @@
 //screen
-var screenWidth = 1280;
-var screenHeight = 720;
+let screenWidth = 1280;
+let screenHeight = 720;
 
-//Man's variables
-var manSize = 10;
-var x = screenWidth/15;
-var y = screenHeight/2;
+//man object
+let man = {
+  size:10,
+  x:0,
+  y:screenHeight/2,
+  moveRight:true,
+  y_vel: 0,
+  jumpVel: 10
+};
 
-//speed variables
-var velocity = 0;
-var gravity = 0.5;
-var jumpVel = 10;
-
-//obsticle variables
-var holeSize = 100;
-var pipeWidth = 10;
-var pipeSpeed = 15;
-var pX = screenWidth;
-var hY = screenHeight/2 - (holeSize/2);
-
-var score = 0;
+//sets gravity
+let gravity = 0.5;
 
 
 function draw(){
   createCanvas(screenWidth, screenHeight);
   background(0);
 
-  //adds gravity
-  if(y < screenHeight-manSize/1.75){
-    velocity = velocity + gravity;
-  }
+  gravityFunc(man);
+  //sets man's y to the correct man.y_vel
+  setVelocity(man);
 
-  //sets man's y to the correct velocity
-  y = y + velocity;
-  if(y > screenHeight-manSize/1.75){y=screenHeight-manSize/1.75;}
-  if(y < 0+manSize/1.75){y=0+manSize/1.75;}
+  drawMan(man);
 
-  //makes pipe move along screen
-  if(pX > -pipeWidth){
-    pX = pX - pipeSpeed;
-  }else{
-    pX = screenWidth;
-    hY = random(screenHeight/15,screenHeight-holeSize);
-    score++;
-  }
-
-  drawPipe(pX,hY);
-  drawMan(x,y);
-
-  //displays score
-  fill(0,200,0);
-  textSize(50);
-  text("Score: " + score, 10,50);
-
-  //hit detection
-  if(x+(manSize/2) > pX && x-(manSize/2) < pX+pipeWidth){
-    if(y > 0 && y < hY){
-      fill(255,0,0);
-      textSize(200);
-      text("GAME OVER",25,screenHeight/1.8);
-      noLoop();
-      setTimeout(function(){location.reload();},2000);
-  }else if(y+manSize/1.75 > hY+holeSize && y-manSize/1.75 < screenHeight){
-    fill(255,0,0);
-    textSize(200);
-    text("GAME OVER",25,screenHeight/1.8);
-    noLoop();
-    setTimeout(function(){location.reload();},2000);
-  }}
 
 }
 
-drawMan = function(manX,manY){
+function drawMan(man){
   fill(255);
-  rect(manX, manY, manSize, manSize);
+  rect(man.x, man.y, man.size, man.size);
 }
 
-drawPipe = function(pipeX, holeY){
-  this.holeY = holeY;
-  this.pipeX = pipeX;
-
-  fill(255);
-  rect(this.pipeX,0,pipeWidth,screenHeight);
-  fill(0);
-  rect(this.pipeX,this.holeY,pipeWidth,holeSize);
+function gravityFunc(man){
+  if(man.y < screenHeight-man.size/1.75){
+    man.y_vel = man.y_vel + gravity;
+    console.log(man.y_vel);
+  }
 }
 
+function setVelocity(man){
+  man.y = man.y + man.y_vel;
+  if(man.y > screenHeight-man.size/1.75){y=screenHeight-man.size/1.75;}
+  if(man.y < 0+man.size/1.75){y=0+man.size/1.75;}
+}
 
 function keyPressed() {
 //  if (keyCode == UP_ARROW) {
-    velocity=-jumpVel;
+    man.y_vel = -man.jumpVel;
 //  }
 }
