@@ -2,53 +2,156 @@
 let screenWidth = 1280;
 let screenHeight = 720;
 
+//other variables
+let healthSize = 10;
+
+var gameOver = false;
+
+//set man constants
+const manSize = 20;
+const startHealth = 100;
+const jumpVel = 15;
+const x_vel = 10;
+const damage = 10;
+//sets gravity
+let gravity = 0.8;
+
 //man object
 let man = {
-  size:10,
-  x:0,
-  y:screenHeight/2,
-  moveRight:true,
+  name: 'red-dude',
+  size: manSize,
+  x: 0,
+  y: screenHeight/2,
+  moveRight: true,
   y_vel: 0,
-  jumpVel: 10
+  x_vel: x_vel,
+  jumpVel: jumpVel,
+  color: [255, 0, 0],
+  health: startHealth
 };
 
-//sets gravity
-let gravity = 0.5;
+let man2 = {
+  name: 'bluemen',
+  size: manSize,
+  x: screenWidth,
+  y: screenHeight/2,
+  moveRight: false,
+  y_vel: 0,
+  x_vel: x_vel,
+  jumpVel: jumpVel,
+  color: [0, 0, 255],
+  health: startHealth
+};
+
+let pipe = {
+  x: screenWidth/2,
+  width: 20,
+  holeY: 0,
+  holeSize: 100
+}
+
+
+
+
 
 
 function draw(){
   createCanvas(screenWidth, screenHeight);
   background(0);
 
-  gravityFunc(man);
-  //sets man's y to the correct man.y_vel
-  setVelocity(man);
+  drawPipe(pipe);
 
+  setVelocity_y(man);
   drawMan(man);
 
+  setVelocity_y(man2);
+  drawMan(man2);
 
+  hitCheck(man, pipe);
+  hitCheck(man2, pipe);
+
+  drawHealth(man, man2);
+  deadCheck(man, man2);
 }
 
-function drawMan(man){
-  fill(255);
-  rect(man.x, man.y, man.size, man.size);
+function drawHealth(man, man2){
+  let healthbar1 = map(man.health,0,startHealth,0,screenWidth/2);
+  let healthbar2 = map(man2.health,0,startHealth,0,-screenWidth/2);
+
+  fill(man.color[0], man.color[1], man.color[2]);
+  rect(0,0,healthbar1,healthSize);
+  fill(man2.color[0], man2.color[1], man2.color[2]);
+  rect(screenWidth,0,healthbar2,healthSize);
 }
 
-function gravityFunc(man){
-  if(man.y < screenHeight-man.size/1.75){
-    man.y_vel = man.y_vel + gravity;
-    console.log(man.y_vel);
+function deadCheck(m1, m2){
+  if(m1.health <= 0 ){
+    gameOver = true;
+    fill(m2.color[0], m2.color[1], m2.color[2]);
+    textSize(150);
+    text(m2.name + ' WINS!', 10, screenWidth/2);
+    setTimeout(function(){location.reload();}, 3000);;
+  }
+  if(m2.health <= 0 ){
+    gameOver = true;
+    fill(m1.color[0], m1.color[1], m1.color[2]);
+    textSize(150);
+    text(m1.name + ' WINS!', 10, screenWidth/2);
+    setTimeout(function(){location.reload();}, 3000);
   }
 }
 
-function setVelocity(man){
+function drawPipe(){
+  fill(255);
+  rect(pipe.x-pipe.width/2, 0, pipe.width, screenHeight);
+  fill(0);
+  rect(pipe.x-pipe.width/2, pipe.holeY, pipe.width, pipe.holeSize);
+}
+
+function drawMan(man){
+  fill(man.color[0], man.color[1], man.color[2]);
+  rect(man.x, man.y, man.size, man.size);
+}
+
+function hitCheck(man, pipe){
+  if(man.x + man.size >= screenWidth){
+    man.moveRight = false;
+    pipe.holeY = random(0, screenHeight-pipe.holeSize);
+  }
+  if(man.x <= 0){
+    man.moveRight = true;
+  }
+
+  if(man.x + man.size/2 > pipe.x-pipe.width/2 && man.x + man.size/2 < pipe.x+pipe.width/2){
+    if(man.y + man.size/2 > pipe.holeY && man.y + man.size/2 < pipe.holeY+pipe.holeSize){
+
+    }else{
+      if(man.health >= 0 && gameOver == false){
+        man.health = man.health - damage;
+      }
+    }
+  }
+}
+
+function setVelocity_y(man){
+  if(man.y < screenHeight-man.size/1.75){
+    man.y_vel = man.y_vel + gravity;
+  }
   man.y = man.y + man.y_vel;
-  if(man.y > screenHeight-man.size/1.75){y=screenHeight-man.size/1.75;}
-  if(man.y < 0+man.size/1.75){y=0+man.size/1.75;}
+  if(man.y > screenHeight-man.size){man.y=screenHeight-man.size;}
+  if(man.y < 0){man.y=0;}
+
+  if(man.moveRight == true){
+    man.x = man.x + man.x_vel;
+  }else{
+    man.x = man.x - man.x_vel;
+  }
 }
 
 function keyPressed() {
-//  if (keyCode == UP_ARROW) {
+  if (keyCode == UP_ARROW) {
     man.y_vel = -man.jumpVel;
-//  }
+  }else if (keyCode == 87){
+    man2.y_vel = -man2.jumpVel;
+  }
 }
