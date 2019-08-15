@@ -7,8 +7,12 @@ let healthSize = 10;
 
 var gameOver = false;
 
+const itemSize = 40;
+
+const phatDebuff = 3;
+
 //set man constants
-const manSize = 7;
+let manSize = 7;
 const startHealth = 100;
 const jumpVel = 12;
 const x_vel = 7;
@@ -18,6 +22,7 @@ let gravity = 0.8;
 
 //man object
 let man = {
+  id: 1,
   name: 'bloodson',
   size: manSize,
   x: 0,
@@ -31,6 +36,7 @@ let man = {
 };
 
 let man2 = {
+  id: 2,
   name: 'cripman',
   size: manSize,
   x: screenWidth,
@@ -50,22 +56,67 @@ let pipe = {
   holeSize: 70
 }
 
+let item = {
+  type: 'phat',
+  x: 0,
+  y: 0,
+  size: itemSize,
+  respawnRate: 5,
+  new: true,
+  touched: false,
+  used: false,
+  usedby: ''
+}
+
 function draw(){
   createCanvas(screenWidth, screenHeight);
   background(0);
 
   drawPipe(pipe);
 
-  setVelocity_y(man);
+  spawnItem(item);
+
+  setVelocity(man);
   drawMan(man);
-  setVelocity_y(man2);
+  setVelocity(man2);
   drawMan(man2);
 
-  hitCheck(man, pipe);
-  hitCheck(man2, pipe);
+  hitCheck(man, pipe, item);
+  hitCheck(man2, pipe, item);
+
+  effects(man, man2, item);
 
   drawHealth(man, man2);
   deadCheck(man, man2);
+}
+
+function effects(man1, man2, item){
+  if(item.used == false){
+    if(item.type == 'phat'){
+      if(item.touched = true && item.usedby == man1.id){
+        man2.size = man2.size*phatDebuff;
+        item.used = true;
+      }
+      if(item.touched = true && item.usedby == man2.id){
+        man1.size = man1.size*phatDebuff;
+        item.used = true;
+      }
+    }
+  }
+}
+
+function spawnItem(item){
+  fill(0,255,255);
+  if(item.new == true){
+    item.x = random(0,screenWidth-itemSize);
+    item.y = random(0,screenHeight-itemSize);
+    item.new = false;
+  }
+  if(item.touched == false){
+    rect(item.x, item.y, itemSize, itemSize);
+  }else{
+
+  }
 }
 
 function drawHealth(man, man2){
@@ -116,6 +167,11 @@ function hitCheck(man, pipe){
     man.moveRight = true;
   }
 
+  if(man.x > item.x && man.x < item.x+itemSize && man.y > item.y && man.y < item.y+itemSize){
+    item.touched = true;
+    item.usedby = man.id;
+  }
+
   if(man.x + man.size/2 > pipe.x-pipe.width/2 && man.x + man.size/2 < pipe.x+pipe.width/2){
     if(man.y + man.size/2 > pipe.holeY && man.y + man.size/2 < pipe.holeY+pipe.holeSize){
 
@@ -127,7 +183,7 @@ function hitCheck(man, pipe){
   }
 }
 
-function setVelocity_y(man){
+function setVelocity(man){
   if(man.y < screenHeight-man.size){
     man.y_vel = man.y_vel + gravity;
   }
